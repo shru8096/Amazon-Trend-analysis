@@ -1,0 +1,79 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Step 1: Extract
+# Load the dataset
+df = pd.read_csv('Amazon Sales data.csv')
+
+# Step 2: Transform
+# Convert Order Date column to datetime
+df['Order Date'] = pd.to_datetime(df['Order Date'])
+
+# Extract month and year from Order Date
+df['month'] = df['Order Date'].dt.month
+df['year'] = df['Order Date'].dt.year
+df['year_month'] = df['Order Date'].dt.to_period('M')
+
+# Handle missing values (e.g., fill with 0)
+df = df.fillna(0)
+
+# Step 3: Load
+# Group by month and year to get sales trends
+monthly_sales = df.groupby('month')['Total Revenue'].sum()
+yearly_sales = df.groupby('year')['Total Revenue'].sum()
+yearly_monthly_sales = df.groupby('year_month')['Total Revenue'].sum()
+
+# Step 4: Analyze and Visualize
+# Plot monthly sales trend
+plt.figure(figsize=(10, 6))
+monthly_sales.plot(kind='bar', color='skyblue')
+plt.title('Monthly Sales Trend')
+plt.xlabel('Month')
+plt.ylabel('Total Revenue')
+plt.xticks(rotation=0)
+plt.show()
+
+# Plot yearly sales trend
+plt.figure(figsize=(10, 6))
+yearly_sales.plot(kind='bar', color='orange')
+plt.title('Yearly Sales Trend')
+plt.xlabel('Year')
+plt.ylabel('Total Revenue')
+plt.xticks(rotation=0)
+plt.show()
+
+# Plot yearly monthly sales trend
+plt.figure(figsize=(12, 8))
+yearly_monthly_sales.plot(kind='line', marker='o', color='green')
+plt.title('Yearly Monthly Sales Trend')
+plt.xlabel('Year-Month')
+plt.ylabel('Total Revenue')
+plt.xticks(rotation=90)
+plt.show()
+
+# Key Metrics and Factors
+# Total sales
+total_sales = df['Total Revenue'].sum()
+print(f"Total Sales: {total_sales}")
+
+# Average monthly sales
+average_monthly_sales = monthly_sales.mean()
+print(f"Average Monthly Sales: {average_monthly_sales}")
+
+# Sales growth rate (yearly)
+sales_growth_rate = yearly_sales.pct_change().fillna(0) * 100
+print("Sales Growth Rate (Yearly):")
+print(sales_growth_rate)
+
+# Display meaningful relationships
+# Correlation between sales and other attributes (e.g., Units Sold, Total Cost, Total Profit)
+correlation_matrix = df[['Total Revenue', 'Units Sold', 'Total Cost', 'Total Profit']].corr()
+print("Correlation Matrix:")
+print(correlation_matrix)
+
+# Visualize correlation
+plt.figure(figsize=(10, 8))
+sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm')
+plt.title('Correlation Matrix')
+plt.show() 
